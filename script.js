@@ -7,11 +7,21 @@ const renderer = new THREE.WebGLRenderer({ canvas, alpha: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+const dynamicWidth = () => {
+    if (window.innerWidth <= 768) { 
+        return 6000;
+    } else {
+        return 3000;
+    }
+};
+
 const bgParticleCount = 10000;
 const bgPositions = new Float32Array(bgParticleCount * 3);
 const bgPositionsOpposite = new Float32Array(bgParticleCount * 3);
 let bgParticles;
 let bgParticlesOpposite;
+
+
 
 function createBackgroundParticles() {
     const bgGeometry = new THREE.BufferGeometry();
@@ -19,7 +29,7 @@ function createBackgroundParticles() {
     for (let i = 0; i < bgParticleCount; i++) {
         const x = THREE.MathUtils.randFloatSpread(10);
         const y = THREE.MathUtils.randFloatSpread(1000);
-        const z = THREE.MathUtils.randFloatSpread(3000);
+        const z = THREE.MathUtils.randFloatSpread(dynamicWidth());
 
         bgPositions.set([x, y, z], i * 3);
         bgPositionsOpposite.set([-x, -y, -z], i * 3);
@@ -47,13 +57,19 @@ scene.add(directionalLight);
 
 function animate() {
     const time = Date.now() * 0.001;
-
     for (let i = 0; i < bgParticleCount; i++) {
         const direction = Math.sin(time + i);
-        const distance = 200;
+        var distance;
+        const dynamicDistance = () => {
 
-        bgPositions[i * 3 + 0] = direction * distance;
-        bgPositions[i * 2 + 2] = Math.cos(time + i) * 200;
+            if(dynamicWidth() === 3000) {
+                return distance = 200;
+        } else {
+            return distance = 170
+        }
+    }
+        bgPositions[i * 3 + 0] = direction * dynamicDistance();
+        bgPositions[i * 2 + 2] = Math.cos(time + i) * dynamicDistance();
         bgPositions[i * 3 + 2] = Math.tan(time + i) * 90;
         bgPositionsOpposite[i * 3 + 1] = Math.sin(time + i) * 100;
         bgPositionsOpposite[i * 3 + 3] = Math.cos(time + i) * 200;
